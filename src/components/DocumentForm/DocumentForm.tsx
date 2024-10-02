@@ -35,21 +35,27 @@ const DocumentForm = () => {
     let base64 = await getBase64(values?.document?.file.originFileObj);
     base64 = String(base64);
     base64 = base64?.split(',')[1];
-    console.log(base64);
-    const signature = await sign(base64, localStorage.getItem('privateKey'));
-    console.log(signature)
-    const data = { ...values, emails, signature, base64file: base64 };
-    try {
-      let res = await storeDocument(data).unwrap();
-
-    }
-    catch (err) {
-      showErrors(err);
+    let privateKeyFile = values?.['private key']?.file?.originFileObj
+    const reader = new FileReader() ;
+    reader.readAsText(privateKeyFile)
+    reader.onload = async (e)=>{
+      let text = e?.target?.result ;
+      console.log(text);
+      const signature = await sign(base64, text);
+      console.log(signature)
+      const data = { ...values, emails, signature, base64file: base64 };
+      try {
+        let res = await storeDocument(data).unwrap();
+        
+      }
+      catch (err) {
+        showErrors(err);
+      }
     }
     // console.log(values);
 
 
-  };
+};
   const uploadButton = (
     <div>
       <Icon type={state.loading ? 'loading' : 'plus'} />
